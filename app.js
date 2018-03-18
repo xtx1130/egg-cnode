@@ -39,14 +39,15 @@ module.exports = app => {
 
   const githubHandler = async (ctx, { profile }) => {
     const email = profile.emails && profile.emails[0] && profile.emails[0].value;
-    const existUser = await ctx.service.user.getUsersByQuery({
-      githubId: profile.id,
-    });
+    const existUser = await ctx.service.user.getUserByGithubId(profile.id);
 
     // 用户不存在则创建
-    // TODO
     if (!existUser) {
-      return null;
+      // 如果用户还未存在，则建立新用户
+      console.log(profile);
+      ctx.session.profile = profile;
+      ctx.redirect('/auth/github/new');
+      return;
     }
 
     // 用户存在，更新字段

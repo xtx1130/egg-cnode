@@ -6,11 +6,13 @@
 module.exports = app => {
   const { router, controller, config, middleware } = app;
 
-  const { site, sign, user, topic, rss, search, page, reply, message } = controller;
+  const { site, sign, user, topic, rss,
+    search, page, reply, message, github } = controller;
 
   const userRequired = middleware.userRequired();
   const adminRequired = middleware.adminRequired();
-  const topicPerDayLimit = middleware.topicPerDayLimit(config.topic);
+  const createTopicLimit = middleware.createTopicLimit(config.topic);
+  const createUserLimit = middleware.createUserLimit('create_user_per_ip', config.create_user_per_ip);
 
   // home page
   router.get('/', site.index);
@@ -42,6 +44,8 @@ module.exports = app => {
 
   // github oauth
   app.passport.mount('github');
+  router.get('/auth/github/new', github.new);
+  router.post('/auth/github/create', createUserLimit, github.create);
 
   router.get('/search_pass', sign.showSearchPass); // 找回密码页面
   router.post('/search_pass', sign.updateSearchPass); // 更新密码
@@ -79,7 +83,7 @@ module.exports = app => {
   router.post('/topic/:tid/delete', userRequired, topic.delete);
 
   // // 保存新建的文章
-  router.post('/topic/create', userRequired, topicPerDayLimit, topic.put);
+  router.post('/topic/create', userRequired, createTopicLimit, topic.put);
 
   router.post('/topic/:tid/edit', userRequired, topic.update);
   router.post('/topic/collect', userRequired, topic.collect); // 关注某话题
