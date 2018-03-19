@@ -29,8 +29,8 @@ see [egg docs][egg] for more detail.
 
 ```bash
 brew install redis mongodb
-brew services start redis
-brew services start mongodb
+[sudo] brew services start redis
+[sudo] brew services start mongodb
 ```
 
 #### Linux Install
